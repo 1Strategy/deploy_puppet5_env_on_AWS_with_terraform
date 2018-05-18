@@ -14,6 +14,7 @@ variable "aws_secret_key" {
 
 variable "puppet_repository" {
   type        = "string"
+  default     = "https://yum.puppet.com/puppet5/puppet5-release-el-7.noarch.rpm"
   description = "The puppet repository of open source Puppet 5-compatible software packages."
 }
 
@@ -34,17 +35,8 @@ variable "ec2_keypair" {
 
 variable "instance_type" {
   type        = "string"
+  default     = "t2.medium"
   description = "The instance type of the puppet node instance."
-}
-
-variable "s3_bucket_configurations" {
-  type        = "string"
-  description = "S3 bucket which is used to store puppet configurations."
-}
-
-variable "ebs_disk_size" {
-  type        = "string"
-  description = "Size of the puppet master ebs volume."
 }
 
 variable "aws_route53_zone_name" {
@@ -55,20 +47,29 @@ variable "aws_route53_zone_name" {
 
 variable "puppet_master_name" {
   type        = "string"
+  default     = "puppet.master"
   description = "Name of the route53 zone."
 }
 
 variable "node_count" {
   type        = "string"
+  default     = "1"
   description = "The number of puppet nodes you want to launch."
 }
 
 variable "asg_min" {
   type        = "string"
+  default     = "1"
   description = "Minimum number of nodes in the Auto-Scaling Group"
 }
 
 variable "asg_max" {
   type        = "string"
+  default     = "1"
   description = "Minimum number of nodes in the Auto-Scaling Group"
+}
+
+variable "r10k_repository" {
+  type        = "string"
+  description = "URL of the r10k control repository"
 }

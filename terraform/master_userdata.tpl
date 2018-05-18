@@ -29,7 +29,7 @@ EOF
 function mountefs {
     yum install -y amazon-efs-utils
     mkdir /etc/puppetlabs
-    mount -t efs fs-de0ab596:/ ${efs_dns_name}:/ /etc/puppetlabs
+    mount -t efs fs-de0ab596:/ ${efs_id}:/ /etc/puppetlabs
 }
 
 function installpuppet {

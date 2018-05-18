@@ -185,35 +185,57 @@ chmod 400 /root/.ssh/id_rsa
 chmod 400 /root/.ssh/id_rsa.pub
 ```
 
-## Deploy the solution
+## Deploy and Test the solution
 
 You can folk or download the solution from [https://github.com/1Strategy](https://github.com/1Strategy/deploy_puppet5_env_on_AWS_with_terraform), create an terraform.tfvars file with below parameters initialized:
 
-| Parameters              | Details                                               |
-| ----------------------- |:-----------------------------------------------------:|
-| r10k_repository         |r10k control repository url                            |
-| puppet_repository       |puppet rpm package url to be installed                 |
-| vpc_id                  |vpc which will holds the puppet master                 |
-| vpc_cidr                |the cidr block of the puppet master vpc                |
-| subnet_id               |the subnet of the puppet master will be launched in    |
-| instance_type           |EC2 instance type of the puppet master                 |
-| puppet_master_name      |The puppet master name which will be part of hostname  |
-| aws_route53_zone_name   |Route53 private host zone name                         |
-| asg_min                 |For single master, set it to "1"                       |
-| asg_max                 |For single master, set it to "1"                       |
-| ssh_key_name            |The ssh key name which will be used to log on to master|
-| remote_access_cidr      |The cidr block range what allowed to ssh to master     |
-| env_name                |Used to tag the resource with env info                 |
-| master_instance_prefix  |Prefix of the EC2 Name tag                             |
-| rsa_private_key_name    |RSA private key name set up in the parameter store     |
-| rsa_public_key_name     |RSA public key name set up in the parameter store      |
+| Parameters              | Details                                               | Default Value |
+| ----------------------- |:----------------------------------------------------- |:--------------|
+| aws_access_key          |aws_access_key of your IAM user                        | N/A           |
+| aws_secret_key          |aws_secret_key of your IAM user                        | N/A           |
+| ssh_key_name            |The ssh key name which will be used to log on to master| N/A           |
+| r10k_repository         |r10k control repository url                            | N/A           |
+| puppet_repository       |puppet rpm package url to be installed                 |https://yum.puppet.com/puppet5/puppet5-release-el-7.noarch.rpm                                    |
+| vpc_id                  |vpc which will holds the puppet master                 | N/A           |
+| subnet_id               |the subnet of the puppet master will be launched in    | N/A           |
+| instance_type           |EC2 instance type of the puppet master                 | t2.medium     |
+| puppet_master_name      |The puppet master name which will be part of hostname  | puppet.master |
+| aws_route53_zone_name   |Route53 private host zone name                         | private       |
+| asg_min                 |For single master, set it to "1"                       | 1             |
+| asg_max                 |For single master, set it to "1"                       | 1             |
 
 Note: For the instance_type, t2.medium is the minimum,otherwise, you may get memory is not enough error and the master won't work.
 
-Then deploy the solution with below commands:
+Then fo to terraform folder and deploy the solution with below commands:
 
 ```terraform
 terraform init
 terraform plan
 terraform apply
-``` 
+```
+
+If everything works well, when you log on to the master server, /etc/puppetlabs/code/environments/production/ should exist with the files from [r10k control repository](https://github.com/puppetlabs/control-repo):
+
+```bash
+[root@puppet production]# ls
+data              hiera.yaml  manifests   README.md  site
+environment.conf  LICENSE     Puppetfile  scripts 
+```
+
+If you log on to the puppet agent node, and type "puppet agent --test" as root user, the puppet agent should be able to retrieve the catalog successfully:
+```bash
+[root@puppet-agent-hostname ~]# puppet agent --test
+Info: Using configured environment 'production'
+Info: Retrieving pluginfacts
+Info: Retrieving plugin
+Info: Retrieving locales
+Info: Caching catalog for puppet-agent-hostname
+Info: Applying configuration version 'puppet.master.private-production-78662f908d0'
+Notice: Applied catalog in 0.01 seconds
+```
+
+## Conclusion
+This solution deploys Open Source Puppet version 5.5.1 by default. Open Source Puppet is available to download and use under the Apache 2.0 license. If you have further questions, feel free to schedule a consultation with us or email me directly at [jing@1strategy.com](jing@1strategy.com).
+
+## License
+Licensed under the Apache License, Version 2.0.

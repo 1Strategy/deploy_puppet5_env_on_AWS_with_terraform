@@ -1,3 +1,17 @@
+#  Copyright 2018 1Strategy, LLC
+
+#    Licensed under the Apache License, Version 2.0 (the "License");
+#    you may not use this file except in compliance with the License.
+#    You may obtain a copy of the License at
+
+#        http://www.apache.org/licenses/LICENSE-2.0
+
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS,
+#    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#    See the License for the specific language governing permissions and
+#    limitations under the License.
+
 ##################################################################################
 # PROVIDERS
 ##################################################################################
@@ -48,7 +62,7 @@ data "template_file" "master_userdata" {
     master_hostname = "${var.puppet_master_name}.${var.aws_route53_zone_name}"
     puppet_repo     = "${var.puppet_repository}"
     hosted_zone_id  = "${aws_route53_zone.puppet_zone.zone_id}"
-    efs_dns_name    = "${aws_efs_file_system.master_node_efs.dns_name}"
+    efs_id          = "${aws_efs_file_system.master_node_efs.id}"
     r10k_repo       = "${var.r10k_repository}"
   }
 }
@@ -175,8 +189,7 @@ resource "aws_launch_configuration" "puppet_master" {
   associate_public_ip_address = true
   enable_monitoring           = false
 
-  # image_id                    = "${data.aws_ami.amazon_linux_ami.id}"
-  image_id             = "ami-223f945a"
+  image_id             = "${data.aws_ami.amazon_linux_ami.id}"
   instance_type        = "${var.instance_type}"
   key_name             = "${var.ec2_keypair}"
   security_groups      = ["${aws_security_group.puppet_master_security_group.id}"]
