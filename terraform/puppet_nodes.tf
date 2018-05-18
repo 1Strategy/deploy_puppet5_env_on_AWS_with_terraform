@@ -58,8 +58,7 @@ resource "aws_security_group" "puppet_node_security_group" {
 
 # Agent Node - EC2 Instance #
 resource "aws_instance" "puppet_agent_node" {
-  # ami                         = "${data.aws_ami.amazon_linux_ami.id}"
-  ami                         = "ami-223f945a"
+  ami                         = "${data.aws_ami.amazon_linux_ami.id}"
   instance_type               = "${var.instance_type}"
   security_groups             = ["${aws_security_group.puppet_node_security_group.id}"]
   subnet_id                   = "${var.vpc_subnet_id}"
