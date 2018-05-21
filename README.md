@@ -1,23 +1,25 @@
 # Puppet Open Source Version 5.5 on AWS
 
-## Deploy a Puppet master and Puppet agents on Amazon EC2 using terraform
+## Deploy a Puppet master and Puppet agents on Amazon EC2 using Terraform
 
-This blogpost describes an automated terraform solution to deploy the puppet master server on EC2 instance using image Amazon Linux 2, register multiple nodes to the puppet master, and configure a sample r10k control repository to manage the puppet environment.
+[Puppet](https://puppet.com/) is one of the most widely used configuration management and automation systems. This blog post shows an automated solution via Terraform to deploy Puppet Open Source to AWS.
 
-To make sure the puppet master is highly available and self-healing, puppet master node is put inside of an auto-scaling group (ASG), and also an EFS is mounted to the puppet master node to store the main puppet configurations folder /etc/puppetlabs. When the puppet master node is down, the auto-scaling group will spin up a new puppet master with the same configurations, and the new master will mount the EFS to get the certificates and configurations of the previews master, so the puppet nodes can connect to the new master automatically without regenerating certificates.
+The solution provisions Puppet master with high availability setup, register multiple nodes to the puppet master automatically, and configure a sample r10k control repository to manage the puppet environment. All instances are based on [Amazon Linux 2](https://aws.amazon.com/amazon-linux-2/).
 
-Puppet uses the hostname to communicate with the managed nodes, to make sure puppet nodes can resolve the master hostname, the solution also provisions a record set for puppet mater instance in a Route 53 private zone to map the puppet master hostname and its private ip address. Whenever the puppet master relaunched, its private ip may change, and the user data automatically updates the record set with the latest private ip address.
-
-
+Here is the solution architecture:
 <img src="./images/Puppet_OpenSource_Infrastructure.png" width="500" height="500">
+
+To make sure the puppet master is highly available and self-healing, we put master node in an auto-scaling group (ASG) and use EFS to store the main puppet configurations (/etc/puppetlabs). When the puppet master node is down, the auto-scaling group will spin up a new puppet master with the same configurations, and the new master will mount the EFS to get the certificates and configurations of the previews master, so the puppet nodes can connect to the new master automatically without regenerating certificates.
+
+Puppet nodes use master hostname to locat master instance, to make sure puppet nodes can resolve the master hostname, the solution also provisions a record set for puppet mater instance in a Route 53 private zone to map the puppet master hostname and its private IP address. The solution also update the record set with the new IP address after master node gets recovered.
 
 ## Implementation Details
 
-Now let's talk about the detailed implementation and consideration of the solution.
+Now let's talk about the detailed implementation and key considerations of the solution.
 
 ### Puppet Master
 
-Amazon Linux 2 is a good fit for the puppet master since it has the systemd support (amazon Linux doesn't support systemd) which is required by bootstrapping puppet, and it comes with many AWS tools (e.g. AWS CLI) which help reduce the execution time of EC2 user data. Here are the steps to set up puppet master node:
+Amazon Linux 2 is a good fit for the puppet master since it has the systemd support (amazon Linux v1 doesn't support systemd) which is required when bootstrapping puppet, and it comes with many AWS tools (e.g. AWS CLI) which help reduce the execution time of EC2 user data. Here are the steps to set up puppet master node:
 
 1. Mount EFS Volume to the master node
 
@@ -235,7 +237,7 @@ Notice: Applied catalog in 0.01 seconds
 ```
 
 ## Conclusion
-This solution deploys Open Source Puppet version 5.5.1 by default. Open Source Puppet is available to download and use under the Apache 2.0 license. If you have further questions, feel free to schedule a consultation with us or email me directly at [jing@1strategy.com](jing@1strategy.com).
+This solution deploys Open Source Puppet version 5.5.1 by default via Terraform. Open Source Puppet is available to download and use under the Apache 2.0 license. If you have further questions, feel free to schedule a consultation with us or email me directly at [jing@1strategy.com](jing@1strategy.com).
 
 ## License
 Licensed under the Apache License, Version 2.0.
